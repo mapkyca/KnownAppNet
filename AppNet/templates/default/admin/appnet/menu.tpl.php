@@ -1,0 +1,1 @@
+<li <?php if ($_SERVER['REQUEST_URI'] == '/admin/appnet/') echo 'class="active"'; ?>><a href="/admin/appnet/">App.net</a></li>
