@@ -41,40 +41,6 @@ namespace IdnoPlugins\AppNet {
 		}
 	    }
 	    
-	    // Parse hashtags (don't seem to be supported no more)
-	    /*if (preg_match_all('/#[A-Za-z0-9]+/is', $text, $hashtags, PREG_SET_ORDER|PREG_OFFSET_CAPTURE)) {
-		
-		$entities->hashtags = [];
-		
-		foreach ($hashtags[0] as $hashtag) {
-		    
-		    $tmp = new \stdClass();
-		    $tmp->len = strlen($hashtag[0]);
-		    $tmp->pos = $hashtag[1];
-		    $tmp->name = trim($hashtag[0], '#');
-		    
-		    $entities->hashtags[] = $tmp;
-		}
-	    }*/
-	    
-	    // Implement hashtags using links, until app.net fix their api
-	    if (preg_match_all('/#[A-Za-z0-9]+/is', $text, $hashtags, PREG_SET_ORDER|PREG_OFFSET_CAPTURE)) {
-		
-		if (!$entities->links)
-		    $entities->links = [];
-		
-		foreach ($hashtags[0] as $link) {
-		    
-		    $tmp = new \stdClass();
-		    $tmp->len = strlen($link[0]);
-		    $tmp->pos = $link[1];
-		    $tmp->text = $link[0];
-		    $tmp->url = 'https://alpha.app.net/hashtags/' . trim($link[0], ' #');
-		    
-		    $entities->links[] = $tmp;
-		}
-	    }
-	    
 	    return $entities;
 	}
 
@@ -116,6 +82,7 @@ namespace IdnoPlugins\AppNet {
 				$entity = new \stdClass();
 				$entity->text = $message;
 				$entity->entities = $this->getEntities($message);
+				$entity->parse_links = true;
 				
 				$result = \Idno\Core\Webservice::post('https://api.app.net/posts?access_token=' . $appnetAPI->access_token, json_encode($entity /*[
 					    'text' => $message,
@@ -167,6 +134,7 @@ namespace IdnoPlugins\AppNet {
 			    $entity->text = $status;
 			    $entity->entities = $this->getEntities($status);
 			    $entity->annotations = $attachment_list;
+			    $entity->parse_links = true;
 			    
 			    $result = \Idno\Core\Webservice::post('https://api.app.net/posts?access_token=' . $appnetAPI->access_token, json_encode($entity /*[
 					'text' => $status,
