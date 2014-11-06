@@ -3,6 +3,9 @@ App.net Support for Known
 
 This plugin provides App.net syndication (POSSE) support for Known articles and status updates.
 
+It provides basic status update and long post syndication; currently more advanced features (file uploads, starring etc) are not supported,
+but as always, pull requests are welcome.
+
 Installation
 ------------
 
