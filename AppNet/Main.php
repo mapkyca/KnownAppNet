@@ -79,7 +79,7 @@ namespace IdnoPlugins\AppNet {
 	    // Register syndication services
 	    \Idno\Core\site()->syndication()->registerService('appnet', function() {
 		return $this->hasAppNet();
-	    }, ['note', 'article']);
+	    }, ['note', 'article', 'image']);
 
 
 	    // Push "notes" to AppNet
@@ -148,7 +148,7 @@ namespace IdnoPlugins\AppNet {
 			    $entity = new \stdClass();
 			    $entity->text = $status;
 			    $entity->entities = $this->getEntities($status);
-			    $entity->attachments = $attachment_list;
+			    $entity->annotations = $attachment_list;
 			    
 			    $result = \Idno\Core\Webservice::post('https://api.app.net/posts?access_token=' . $appnetAPI->access_token, json_encode($entity /*[
 					'text' => $status,
@@ -227,7 +227,7 @@ namespace IdnoPlugins\AppNet {
 				$entity = new \stdClass();
 				$entity->text = $status;
 				$entity->entities = $this->getEntities($status);
-				$entity->attachments = $attachment_list;
+				$entity->annotations = $attachment_list;
 				
 				$result = \Idno\Core\Webservice::post('https://api.app.net/posts?include_annotations=1&access_token=' . $appnetAPI->access_token, json_encode($entity), ['Content-Type: application/json']);
 				$content = json_decode($result['content']);
