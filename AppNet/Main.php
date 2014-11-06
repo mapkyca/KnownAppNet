@@ -79,7 +79,7 @@ namespace IdnoPlugins\AppNet {
 	    // Register syndication services
 	    \Idno\Core\site()->syndication()->registerService('appnet', function() {
 		return $this->hasAppNet();
-	    }, ['note', 'article', 'image']);
+	    }, ['note', 'article']);
 
 
 	    // Push "notes" to AppNet
