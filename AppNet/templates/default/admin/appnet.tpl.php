@@ -12,7 +12,7 @@
             <div class="control-group">
                 <div class="controls">
                     <p>
-                        To begin using App.net, <a href="https://account.app.net/developer/app/create/" target="_blank">create a new application in
+                        To begin using App.net, <a href="https://account.app.net/developer/apps/" target="_blank">create a new application in
                             the App.net apps portal</a>.</p>
                     <p>
                         Add the following URL to the OAuth2 callback url / redirect URL box <strong><?=\Idno\Core\site()->config()->url?>appnet/callback</strong>.
