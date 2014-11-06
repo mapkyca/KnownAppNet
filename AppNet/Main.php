@@ -14,6 +14,51 @@ namespace IdnoPlugins\AppNet {
 	public static function getState() {
 	    return md5(\Idno\Core\site()->config()->site_secret . \Idno\Core\site()->config()->url . dirname(__FILE__));
 	}
+	
+	/**
+	 * Parse entities in message body.
+	 * Returns activated links, hashtags and users.
+	 * @param type $text
+	 */
+	protected function getEntities($text) {
+	    
+	    $entities = new \stdClass();
+	    
+	    // Parse links
+	    if (preg_match_all('#\bhttps?://[^\s]+#s', $text, $links, PREG_SET_ORDER|PREG_OFFSET_CAPTURE)) {
+		
+		$entities->links = [];
+		
+		foreach ($links[0] as $link) {
+		    
+		    $tmp = new \stdClass();
+		    $tmp->len = strlen($link[0]);
+		    $tmp->pos = $link[1];
+		    $tmp->text = $link[0];
+		    $tmp->url = $link[0];
+		    
+		    $entities->links[] = $tmp;
+		}
+	    }
+	    
+	    // Parse hashtags (don't seem to be supported no more)
+	    /*if (preg_match_all('/#[A-Za-z0-9]+/is', $text, $hashtags, PREG_SET_ORDER|PREG_OFFSET_CAPTURE)) {
+		
+		$entities->hashtags = [];
+		
+		foreach ($hashtags[0] as $hashtag) {
+		    
+		    $tmp = new \stdClass();
+		    $tmp->len = strlen($hashtag[0]);
+		    $tmp->pos = $hashtag[1];
+		    $tmp->name = $hashtag[0];
+		    
+		    $entities->hashtags[] = $tmp;
+		}
+	    }*/
+	    
+	    return $entities;
+	}
 
 	function registerPages() {
 	    // Register the callback URL
@@ -50,9 +95,14 @@ namespace IdnoPlugins\AppNet {
 
 			    try {
 
-				$result = \Idno\Core\Webservice::post('https://api.app.net/posts?access_token=' . $appnetAPI->access_token, [
+				$entity = new \stdClass();
+				$entity->text = $message;
+				$entity->entities = $this->getEntities($message);
+				
+				$result = \Idno\Core\Webservice::post('https://api.app.net/posts?access_token=' . $appnetAPI->access_token, json_encode($entity /*[
 					    'text' => $message,
-				]);
+					    'entities' => $this->getEntities($message)
+				]*/), ['Content-Type: application/json']);
 				$content = json_decode($result['content']);
 
 				if ($result['response'] < 400) {
@@ -95,10 +145,16 @@ namespace IdnoPlugins\AppNet {
 			    $cross->value->canonical_url = $object->getUrl();
 			    $attachment_list[] = $cross;
 			    
-			    $result = \Idno\Core\Webservice::post('https://api.app.net/posts?access_token=' . $appnetAPI->access_token, json_encode([
+			    $entity = new \stdClass();
+			    $entity->text = $status;
+			    $entity->entities = $this->getEntities($status);
+			    $entity->attachments = $attachment_list;
+			    
+			    $result = \Idno\Core\Webservice::post('https://api.app.net/posts?access_token=' . $appnetAPI->access_token, json_encode($entity /*[
 					'text' => $status,
+					'entities' => $this->getEntities($status),
 					'attachments' => $attachment_list // Well, I'm sending this as an attachment, but it doesn't seem to do anything...
-			    ]), ['Content-Type: application/json']);
+			    ]*/), ['Content-Type: application/json']);
 			    $content = json_decode($result['content']);
 
 			    if ($result['response'] < 400) {
@@ -120,7 +176,7 @@ namespace IdnoPlugins\AppNet {
 	    });
 
 	    // Push "images" to AppNet (NOT IMPLEMENTED YET)
-	    /*\Idno\Core\site()->addEventHook('post/image/appnet', function(\Idno\Core\Event $event) {
+	    \Idno\Core\site()->addEventHook('post/image/appnet', function(\Idno\Core\Event $event) {
 		$object = $event->data()['object'];
 		if ($attachments = $object->getAttachments()) {
 
@@ -165,10 +221,15 @@ namespace IdnoPlugins\AppNet {
 
 			    try {
 
-				$result = \Idno\Core\Webservice::post('https://api.app.net/posts?include_annotations=1&access_token=' . $appnetAPI->access_token, json_encode([
-					    'text' => $object->getTitle(),
-					    'attachments' => $attachment_list
-				]), ['Content-Type: application/json']);
+				$status = $object->getTitle();
+				$status .= ': ' . $object->getURL();
+				
+				$entity = new \stdClass();
+				$entity->text = $status;
+				$entity->entities = $this->getEntities($status);
+				$entity->attachments = $attachment_list;
+				
+				$result = \Idno\Core\Webservice::post('https://api.app.net/posts?include_annotations=1&access_token=' . $appnetAPI->access_token, json_encode($entity), ['Content-Type: application/json']);
 				$content = json_decode($result['content']);
 
 				if ($result['response'] < 400) {
@@ -188,7 +249,7 @@ namespace IdnoPlugins\AppNet {
 			}
 		    }
 		}
-	    });*/
+	    });
 	}
 
 	/**
