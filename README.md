@@ -18,7 +18,6 @@ TODO
 ----
 
 * [ ] Image (and other media) upload via attachments, perhaps using my oEmbed plugin
-* [ ] Links / canonical urls for long posts don't appear to do anything, although I might have got something wrong. Pull requests accepted! :)
 
 See
 ---
