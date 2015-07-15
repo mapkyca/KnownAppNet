@@ -10,8 +10,9 @@ Installation
 ------------
 
 * Drop the App.net folder into the IndoPlugins folder of your idno installation.
-* Log into known and click on Administration.
-* Click "install" on the plugins page
+* Log into known and click on Site configuration -> PLUGINS.
+* Click "enable" on the plugins page
+* Go to Settings -> APP.NET
 * Enter your oauth details, then users will be able to link their accounts
 
 TODO
