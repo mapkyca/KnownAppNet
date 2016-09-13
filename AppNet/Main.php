@@ -63,7 +63,7 @@ namespace IdnoPlugins\AppNet {
 	    // Register syndication services
 	    \Idno\Core\site()->syndication()->registerService('appnet', function() {
 		return $this->hasAppNet();
-	    }, ['note', 'article']);
+	    }, ['note', 'image', 'article']);
 
 
 	    // Push "notes" to AppNet
@@ -169,6 +169,12 @@ namespace IdnoPlugins\AppNet {
 		    $attachment_list = [];
 
 		    foreach ($attachments as $attachment) {
+		    	
+		    	$src = \Idno\Core\Idno::site()->config()->sanitizeAttachmentURL($attachment['url']);
+		    	// Patch to correct certain broken URLs caused by https://github.com/idno/known/issues/526
+		    	$src = preg_replace('/^(https?:\/\/\/)/', \Idno\Core\Idno::site()->config()->getDisplayURL(), $src);
+
+		    	list($width, $height, $type, $attr) = getimagesize($src);
 
 			$tmp = new \stdClass();
 
@@ -178,10 +184,9 @@ namespace IdnoPlugins\AppNet {
 			$tmp->value->type = 'photo';
 			$tmp->value->version = '1.0';
 			$tmp->value->title = '1.0';
-			$tmp->value->width = $object->width;
-			$tmp->value->height = $object->height;
+			$tmp->value->width = $width;
+			$tmp->value->height = $height;
 			$tmp->value->url = $attachment['url'];
-			
 
 			if (!empty($object->thumbnail_large)) {
 			    $src = $object->thumbnail_large;			    
@@ -192,6 +197,12 @@ namespace IdnoPlugins\AppNet {
 			} else {
 			    $src = $attachment['url'];
 			}
+
+		    	$src = \Idno\Core\Idno::site()->config()->sanitizeAttachmentURL($attachment['url']);
+
+		    	$src = preg_replace('/^(https?:\/\/\/)/', \Idno\Core\Idno::site()->config()->getDisplayURL(), $src);
+
+		    	list($width, $height, $type, $attr) = getimagesize($src);
 
 			$tmp->value->thumbnail_url = $src;
 			$tmp->value->thumbnail_width = $width;
